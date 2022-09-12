@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var realmManager = RealmManager()
     @State private var showAddTaskView: Bool = false
     
     var body: some View {
@@ -18,6 +19,7 @@ struct ContentView: View {
                 .edgesIgnoringSafeArea(.all)
             
             TaskView()
+                .environmentObject(realmManager)
             
             SmallAddButton()
                 .padding()
@@ -28,6 +30,7 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showAddTaskView) {
             AddTaskView()
+                .environmentObject(realmManager)
         }
         
     }

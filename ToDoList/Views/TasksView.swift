@@ -9,6 +9,8 @@ import SwiftUI
 import Foundation
 
 struct TaskView: View {
+    @EnvironmentObject var realmManager: RealmManager
+    
     var body: some View {
         ZStack{
             
@@ -22,17 +24,34 @@ struct TaskView: View {
                     .bold()
                     .padding()
                 
-                TaskRow(task: "Finish coding the toDo App", taskCompleted: false)
-                    .padding()
-                    .background(.white)
-                    .cornerRadius(13)
-                    .shadow(color: .black, radius: 5)
+                List{
+                    ForEach(realmManager.tasks, id: \.id){task in
+                        if !task.isInvalidated {
+                            TaskRow(task: task.title, taskCompleted: task.completed)
+                                .padding()
+                                .background(.white)
+                                .cornerRadius(13)
+                                .shadow(color: .black, radius: 5)
+                                .onTapGesture {
+                                    realmManager.updateTasks(id: task.id, completed: !task.completed)
+                                }
+                                .swipeActions(edge: .trailing){
+                                    Button(role: .destructive){
+                                        realmManager.deleteTask(id: task.id)
+                                    }label:{
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                        }
+                    }
+                }
+                .onAppear{
+                    UITableView.appearance().backgroundColor = UIColor.clear
+                    UITableViewCell.appearance().backgroundColor = UIColor.clear
+                }
                 
-                TaskRow(task: "Prepare diner", taskCompleted: false)
-                    .padding()
-                    .background(.white)
-                    .cornerRadius(13)
-                    .shadow(color: .black, radius: 5)
+                
+                
                 
                 Spacer()
             }
@@ -44,5 +63,6 @@ struct TaskView: View {
 struct Taskview_Previews: PreviewProvider {
     static var previews: some View {
         TaskView()
+            .environmentObject(RealmManager())
     }
 }
